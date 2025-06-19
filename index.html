@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personaliza tu vela</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #fff9f6;
+      background-color: #fff8f0;
       padding: 20px;
-      color: #333;
     }
     form {
       max-width: 400px;
       margin: auto;
-      background: #fff;
+      background-color: #fff;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -24,212 +23,162 @@
       margin-top: 15px;
       font-weight: bold;
     }
-    select, input[type="number"] {
+    select, input[type="number"], input[type="text"] {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+    }
+    .color-options {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .color-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .selected {
+      border: 2px solid #000;
     }
     button {
+      width: 100%;
       margin-top: 20px;
       background-color: #25d366;
       color: white;
       padding: 12px;
-      width: 100%;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
     }
     .precio {
       margin-top: 15px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
-      color: #444;
+      color: #333;
     }
   </style>
 </head>
 <body>
+  <form onsubmit="event.preventDefault(); enviarWhatsapp();">
+    <label for="producto">Producto:</label>
+    <input type="text" id="producto" value="Vela decorativa personalizada" readonly />
 
-<form id="velaForm">
-  <h2>Personaliza tu vela</h2>
+    <label for="aroma">Aroma:</label>
+    <select id="aroma" onchange="actualizarPrecio()">
+      <option selected>Sin aroma</option>
+      <option>Vainilla</option>
+      <option>Menta</option>
+      <option>Eucalipto</option>
+    </select>
 
-  <!-- Producto (ya definido, oculto si solo es uno) -->
-  <input type="hidden" id="producto" value="Vela decorativa X">
+    <label>Color:</label>
+    <div class="color-options">
+      <div class="color-circle" style="background-color: pink;" data-color="Rosado"></div>
+      <div class="color-circle" style="background-color: white; border: 1px solid #ccc;" data-color="Blanco"></div>
+      <div class="color-circle" style="background-color: red;" data-color="Rojo"></div>
+      <div class="color-circle" style="background-color: blue;" data-color="Azul"></div>
+      <div class="color-circle" style="background-color: yellow;" data-color="Amarillo"></div>
+    </div>
+    <input type="hidden" id="color" />
 
-  <!-- Aroma -->
-  <label for="aroma">Aroma</label>
-  <select id="aroma" name="aroma">
-    <option value="Sin aroma" selected>Sin aroma</option>
-    <option value="Vainilla">Vainilla</option>
-    <option value="Menta">Menta</option>
-    <option value="Eucalipto">Eucalipto</option>
-  </select>
+    <label for="empaqueRegalo">Empaque:</label>
+    <select id="empaqueRegalo" onchange="actualizarPrecio()">
+      <option>Bolsa estándar</option>
+      <option>Caja kraft</option>
+      <option>Caja plateada</option>
+    </select>
 
-  <!-- Color -->
-  <label for="color">Color</label>
-  <select id="color" name="color">
-    <option value="Blanco">Blanco</option>
-    <option value="Negro">Negro</option>
-    <option value="Rosado">Rosado</option>
-    <option value="Rojo">Rojo</option>
-    <option value="Azul">Azul</option>
-    <option value="Amarillo">Amarillo</option>
-  </select>
+    <label for="cantidad">Cantidad:</label>
+    <input type="number" id="cantidad" min="1" max="10" value="1" onchange="actualizarPrecio()" />
 
-  <!-- Empaque -->
-  <label for="empaque">Empaque</label>
-  <select id="empaque" name="empaque">
-    <option value="Bolsa estándar (incluida)">Bolsa estándar (incluida)</option>
-    <option value="Caja kraft (+71 CUP)">Caja kraft (+71 CUP)</option>
-    <option value="Caja plateada (+247 CUP)">Caja plateada (+247 CUP)</option>
-  </select>
+    <label for="nombre">Tu nombre:</label>
+    <input type="text" id="nombre" required />
 
-  <!-- Cantidad -->
-  <label for="cantidad">Cantidad</label>
-  <input type="number" id="cantidad" name="cantidad" min="1" max="10" value="1">
+    <div class="precio" id="precioPorUnidad">Precio por unidad: 120 CUP</div>
+    <div class="precio" id="precioTotal">Total: 120 CUP</div>
 
-  <!-- Precio dinámico -->
-  <div class="precio" id="precio">Precio total: 120 CUP</div>
+    <button type="submit">Enviar pedido por WhatsApp</button>
+  </form>
 
-  <!-- Botón WhatsApp -->
-  <button type="button" onclick="enviarWhatsApp()">Enviar pedido por WhatsApp</button>
-</form>
+  <script>
+    const aromaSelect = document.getElementById('aroma');
+    const empaqueSelect = document.getElementById('empaqueRegalo');
+    const cantidadInput = document.getElementById('cantidad');
+    const precioUnidadDiv = document.getElementById('precioPorUnidad');
+    const precioTotalDiv = document.getElementById('precioTotal');
+    const colorCircles = document.querySelectorAll('.color-circle');
+    const colorInput = document.getElementById('color');
 
-<script>
-  const aroma = document.getElementById('aroma');
-  const cantidad = document.getElementById('cantidad');
-  const empaque = document.getElementById('empaque');
-  const precio = document.getElementById('precio');
+    let precioBase = 120;
+    const precioAroma = 40;
+    const precioCajaKraft = 100;
+    const precioCajaPlateada = 320;
 
-  function calcularPrecio() {
-    let base = aroma.value === "Sin aroma" ? 120 : 160;
-    let empaqueExtra = 0;
-
-    if (empaque.value.includes("kraft")) empaqueExtra = 71;
-    if (empaque.value.includes("plateada")) empaqueExtra = 247;
-
-    const total = (base + empaqueExtra) * Number(cantidad.value);
-    precio.textContent = Precio total: ${total} CUP;
-  }
-
-  aroma.addEventListener("change", calcularPrecio);
-  cantidad.addEventListener("input", calcularPrecio);
-  empaque.addEventListener("change", calcularPrecio);
-
-  function enviarWhatsApp() {
-    const producto = document.getElementById('producto').value;
-    const aromaSeleccionado = aroma.value;
-    const color = document.getElementById('color').value;
-    const cantidadVal = cantidad.value;
-    const empaqueVal = empaque.value;
-
-    let base = aromaSeleccionado === "Sin aroma" ? 120 : 160;
-    let empaqueExtra = 0;
-    if (empaqueVal.includes("kraft")) empaqueExtra = 71;
-    if (empaqueVal.includes("plateada")) empaqueExtra = 247;
-
-    const total = (base + empaqueExtra) * Number(cantidadVal);
-
-    const mensaje = `Hola! Quiero pedir ${cantidadVal} vela(s) del modelo: ${producto}.
-- Aroma: ${aromaSeleccion
-
-Gracias por compartir el código completo. Basado en lo que me pediste, he hecho *estas modificaciones importantes*:
-
----
-
-### ✅ CAMBIOS APLICADOS:
-1. *Input de cantidad*: lo reemplacé por un input type="number" con flechitas, como pediste.
-2. *Precio correcto: ahora es **120 CUP sin aroma* y *160 CUP con aroma*.
-3. *Actualización dinámica del precio por unidad* desde el principio y cada vez que cambies el aroma o el empaque.
-4. *Máximo 10 unidades* con validación.
-
----
-
-### 🔧 AQUÍ ESTÁ TU CÓDIGO MODIFICADO:
-
-```html
-<!-- ... (Todo igual hasta <script>) -->
-
-<script>
-  var colorCircles = document.querySelectorAll('.color-circle');
-  var colorInput = document.getElementById('color');
-  var aromaSelect = document.getElementById('aroma');
-  var precioDiv = document.getElementById('precio');
-  var empaqueSelect = document.getElementById('empaqueRegalo');
-  var cantidadInput = document.getElementById('cantidad');
-
-  const precioSinAroma = 120;
-  const precioConAroma = 160;
-  const precioKraft = 100;
-  const precioPlateada = 320;
-
-  // Selección del color visual
-  colorCircles.forEach(function(circle) {
-    circle.addEventListener('click', function() {
-      colorCircles.forEach(c => c.classList.remove('selected'));
-      circle.classList.add('selected');
-      colorInput.value = circle.getAttribute('data-color');
+    // Selección visual del color
+    colorCircles.forEach(circle => {
+      circle.addEventListener('click', () => {
+        colorCircles.forEach(c => c.classList.remove('selected'));
+        circle.classList.add('selected');
+        colorInput.value = circle.getAttribute('data-color');
+      });
     });
-  });
 
-  // Cálculo dinámico del precio
-  function actualizarPrecio() {
-    const aroma = aromaSelect.value;
-    const empaque = empaqueSelect.value;
+    function actualizarPrecio() {
+      let precio = 120;
+      if (aromaSelect.value !== "Sin aroma") {
+        precio += precioAroma;
+      }
 
-    let base = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
-    if (empaque === "Caja kraft") base += precioKraft;
-    else if (empaque === "Caja plateada") base += precioPlateada;
+      if (empaqueSelect.value === "Caja kraft") {
+        precio += precioCajaKraft;
+      } else if (empaqueSelect.value === "Caja plateada") {
+        precio += precioCajaPlateada;
+      }
 
-    precioDiv.textContent = "Precio por unidad: " + base + " CUP";
-  }
-
-  // Enviar a WhatsApp
-  function enviarWhatsapp() {
-    var producto = document.getElementById('producto').value.trim();
-    var aroma = aromaSelect.value.trim();
-    var color = document.getElementById('color').value.trim();
-    var cantidad = parseInt(cantidadInput.value);
-    var nombre = document.getElementById('nombre').value.trim();
-    var empaque = empaqueSelect.value.trim();
-
-    if (!color) {
-      alert("Selecciona un color.");
-      return;
-    }
-    if (!cantidad || cantidad < 1 || cantidad > 10) {
-      alert("Ingresa una cantidad válida (1 a 10).");
-      return;
-    }
-    if (!nombre) {
-      alert("Ingresa tu nombre.");
-      return;
+      const cantidad = parseInt(cantidadInput.value) || 1;
+      precioUnidadDiv.textContent = Precio por unidad: ${precio} CUP;
+      precioTotalDiv.textContent = Total: ${precio * cantidad} CUP;
     }
 
-    var precioBase = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
-    if (empaque === "Caja kraft") precioBase += precioKraft;
-    else if (empaque === "Caja plateada") precioBase += precioPlateada;
+    function enviarWhatsapp() {
+      const producto = document.getElementById('producto').value;
+      const aroma = aromaSelect.value;
+      const color = colorInput.value;
+      const empaque = empaqueSelect.value;
+      const cantidad = parseInt(cantidadInput.value);
+      const nombre = document.getElementById('nombre').value.trim();
 
-    var total = precioBase * cantidad;
+      if (!color) {
+        alert("Por favor, selecciona un color.");
+        return;
+      }
 
-    var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
-      + "🕯️ Producto: " + producto + "\n"
-      + "🌸 Aroma: " + aroma + "\n"
-      + "🎨 Color: " + color + "\n"
-      + "🎁 Empaque: " + empaque + "\n"
-      + "🔢 Cantidad: " + cantidad + "\n"
-      + "👤 Nombre: " + nombre + "\n"
-      + "💰 Precio por unidad: " + precioBase + " CUP\n"
-      + "💵 Total: " + total + " CUP";
+      if (!nombre) {
+        alert("Por favor, ingresa tu nombre.");
+        return;
+      }
 
-    var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
-    window.open(url, "_blank");
-  }
+      let precio = 120;
+      if (aroma !== "Sin aroma") precio += precioAroma;
+      if (empaque === "Caja kraft") precio += precioCajaKraft;
+      else if (empaque === "Caja plateada") precio += precioCajaPlateada;
 
-  // Precio inicial
-  window.onload = actualizarPrecio;
-  aromaSelect.onchange = actualizarPrecio;
-  empaqueSelect.onchange = actualizarPrecio;
-</script>
+      const total = precio * cantidad;
+
+      const mensaje = Hola, quiero hacer un pedido de velas:\n\n🕯️ Producto: ${producto}\n🌸 Aroma: ${aroma}\n🎨 Color: ${color}\n🎁 Empaque: ${empaque}\n🔢 Cantidad: ${cantidad}\n👤 Nombre: ${nombre}\n💰 Precio por unidad: ${precio} CUP\n💵 Total: ${total} CUP;
+
+      const url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
+      window.open(url, "_blank");
+    }
+
+    // Inicializa precios al cargar
+    window.onload = actualizarPrecio;
+  </script>
+</body>
+</html>
