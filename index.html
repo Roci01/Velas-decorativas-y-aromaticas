@@ -65,12 +65,12 @@
   </style>
 </head>
 <body>
-  <form onsubmit="event.preventDefault(); enviarWhatsapp();">
+  <form id="formulario">
     <label for="producto">Producto:</label>
     <input type="text" id="producto" value="Vela decorativa personalizada" readonly />
 
     <label for="aroma">Aroma:</label>
-    <select id="aroma" onchange="actualizarPrecio()">
+    <select id="aroma">
       <option selected>Sin aroma</option>
       <option>Vainilla</option>
       <option>Menta</option>
@@ -88,14 +88,14 @@
     <input type="hidden" id="color" />
 
     <label for="empaqueRegalo">Empaque:</label>
-    <select id="empaqueRegalo" onchange="actualizarPrecio()">
+    <select id="empaqueRegalo">
       <option>Bolsa estándar</option>
       <option>Caja kraft</option>
       <option>Caja plateada</option>
     </select>
 
     <label for="cantidad">Cantidad:</label>
-    <input type="number" id="cantidad" min="1" max="10" value="1" onchange="actualizarPrecio()" />
+    <input type="number" id="cantidad" min="1" max="10" value="1" />
 
     <label for="nombre">Tu nombre:</label>
     <input type="text" id="nombre" required />
@@ -107,78 +107,77 @@
   </form>
 
   <script>
-    const aromaSelect = document.getElementById('aroma');
-    const empaqueSelect = document.getElementById('empaqueRegalo');
-    const cantidadInput = document.getElementById('cantidad');
-    const precioUnidadDiv = document.getElementById('precioPorUnidad');
-    const precioTotalDiv = document.getElementById('precioTotal');
-    const colorCircles = document.querySelectorAll('.color-circle');
-    const colorInput = document.getElementById('color');
+    document.addEventListener('DOMContentLoaded', function () {
+      const aroma = document.getElementById('aroma');
+      const empaque = document.getElementById('empaqueRegalo');
+      const cantidad = document.getElementById('cantidad');
+      const precioUnidadDiv = document.getElementById('precioPorUnidad');
+      const precioTotalDiv = document.getElementById('precioTotal');
+      const colorCircles = document.querySelectorAll('.color-circle');
+      const colorInput = document.getElementById('color');
+      const formulario = document.getElementById('formulario');
 
-    let precioBase = 120;
-    const precioAroma = 40;
-    const precioCajaKraft = 100;
-    const precioCajaPlateada = 320;
+      const baseSinAroma = 120;
+      const adicionalAroma = 40;
+      const adicionalKraft = 100;
+      const adicionalPlateada = 320;
 
-    // Selección visual del color
-    colorCircles.forEach(circle => {
-      circle.addEventListener('click', () => {
-        colorCircles.forEach(c => c.classList.remove('selected'));
-        circle.classList.add('selected');
-        colorInput.value = circle.getAttribute('data-color');
+      function actualizarPrecio() {
+        let precio = baseSinAroma;
+
+        if (aroma.value !== "Sin aroma") precio += adicionalAroma;
+        if (empaque.value === "Caja kraft") precio += adicionalKraft;
+        if (empaque.value === "Caja plateada") precio += adicionalPlateada;
+
+        const cant = parseInt(cantidad.value) || 1;
+
+        precioUnidadDiv.textContent = Precio por unidad: ${precio} CUP;
+        precioTotalDiv.textContent = Total: ${precio * cant} CUP;
+      }
+
+      // Inicializar precios al cargar
+      actualizarPrecio();
+
+      // Detectar cambios
+      aroma.addEventListener('change', actualizarPrecio);
+      empaque.addEventListener('change', actualizarPrecio);
+      cantidad.addEventListener('input', actualizarPrecio);
+
+      // Selección de color visual
+      colorCircles.forEach(circle => {
+        circle.addEventListener('click', () => {
+          colorCircles.forEach(c => c.classList.remove('selected'));
+          circle.classList.add('selected');
+          colorInput.value = circle.getAttribute('data-color');
+        });
+      });
+
+      formulario.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const producto = document.getElementById('producto').value;
+        const nombre = document.getElementById('nombre').value.trim();
+        const aromaValor = aroma.value;
+        const color = colorInput.value;
+        const empaqueValor = empaque.value;
+        const cant = parseInt(cantidad.value) || 1;
+
+        if (!color) return alert("Por favor selecciona un color.");
+        if (!nombre) return alert("Por favor escribe tu nombre.");
+
+        let precio = baseSinAroma;
+        if (aromaValor !== "Sin aroma") precio += adicionalAroma;
+        if (empaqueValor === "Caja kraft") precio += adicionalKraft;
+        if (empaqueValor === "Caja plateada") precio += adicionalPlateada;
+
+        const total = precio * cant;
+
+        const mensaje = Hola, quiero hacer un pedido de velas:\n\n🕯️ Producto: ${producto}\n🌸 Aroma: ${aromaValor}\n🎨 Color: ${color}\n🎁 Empaque: ${empaqueValor}\n🔢 Cantidad: ${cant}\n👤 Nombre: ${nombre}\n💰 Precio por unidad: ${precio} CUP\n💵 Total: ${total} CUP;
+
+        const url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
+        window.open(url, "_blank");
       });
     });
-
-    function actualizarPrecio() {
-      let precio = 120;
-      if (aromaSelect.value !== "Sin aroma") {
-        precio += precioAroma;
-      }
-
-      if (empaqueSelect.value === "Caja kraft") {
-        precio += precioCajaKraft;
-      } else if (empaqueSelect.value === "Caja plateada") {
-        precio += precioCajaPlateada;
-      }
-
-      const cantidad = parseInt(cantidadInput.value) || 1;
-      precioUnidadDiv.textContent = Precio por unidad: ${precio} CUP;
-      precioTotalDiv.textContent = Total: ${precio * cantidad} CUP;
-    }
-
-    function enviarWhatsapp() {
-      const producto = document.getElementById('producto').value;
-      const aroma = aromaSelect.value;
-      const color = colorInput.value;
-      const empaque = empaqueSelect.value;
-      const cantidad = parseInt(cantidadInput.value);
-      const nombre = document.getElementById('nombre').value.trim();
-
-      if (!color) {
-        alert("Por favor, selecciona un color.");
-        return;
-      }
-
-      if (!nombre) {
-        alert("Por favor, ingresa tu nombre.");
-        return;
-      }
-
-      let precio = 120;
-      if (aroma !== "Sin aroma") precio += precioAroma;
-      if (empaque === "Caja kraft") precio += precioCajaKraft;
-      else if (empaque === "Caja plateada") precio += precioCajaPlateada;
-
-      const total = precio * cantidad;
-
-      const mensaje = Hola, quiero hacer un pedido de velas:\n\n🕯️ Producto: ${producto}\n🌸 Aroma: ${aroma}\n🎨 Color: ${color}\n🎁 Empaque: ${empaque}\n🔢 Cantidad: ${cantidad}\n👤 Nombre: ${nombre}\n💰 Precio por unidad: ${precio} CUP\n💵 Total: ${total} CUP;
-
-      const url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
-      window.open(url, "_blank");
-    }
-
-    // Inicializa precios al cargar
-    window.onload = actualizarPrecio;
   </script>
 </body>
 </html>
