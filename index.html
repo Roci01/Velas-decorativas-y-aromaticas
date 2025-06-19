@@ -83,13 +83,6 @@
       text-align: center;
       color: #000;
     }
-
-    /* Asegurar visibilidad de los spinners en todos los navegadores */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button {
-      -webkit-appearance: auto;
-      margin: 0;
-    }
   </style>
 </head>
 <body>
@@ -135,7 +128,11 @@
       </select>
 
       <label>Cantidad (1–10):</label>
-      <input type="number" id="cantidad" min="1" max="10" />
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" onclick="cambiarCantidad(-1)" style="padding: 5px 10px;">−</button>
+        <input type="number" id="cantidad" min="1" max="10" value="1" style="text-align: center; width: 60px;" />
+        <button type="button" onclick="cambiarCantidad(1)" style="padding: 5px 10px;">+</button>
+      </div>
 
       <label>Tu nombre:</label>
       <input type="text" id="nombre" />
@@ -175,6 +172,18 @@
       else if (empaque === "Caja plateada") base += precioPlateada;
 
       precioDiv.textContent = "Precio: " + base + " CUP";
+    }
+
+    function cambiarCantidad(delta) {
+      var input = document.getElementById('cantidad');
+      var value = parseInt(input.value || 1, 10);
+      var min = parseInt(input.min, 10);
+      var max = parseInt(input.max, 10);
+    
+      var nuevoValor = value + delta;
+      if (nuevoValor >= min && nuevoValor <= max) {
+        input.value = nuevoValor;
+      }
     }
 
     function enviarWhatsapp() {
