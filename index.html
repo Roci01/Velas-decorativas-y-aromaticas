@@ -174,14 +174,18 @@
       const empaque = empaqueSelect.value;
       const cantidad = parseInt(document.getElementById('cantidad').value || 1, 10);
     
-      let base = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
+      // Precio base solo según aroma (sin incluir empaque)
+      let precioUnidad = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
     
-      if (empaque === "Caja kraft") base += precioKraft;
-      else if (empaque === "Caja plateada") base += precioPlateada;
+      // Precio extra por empaque
+      let extraEmpaque = 0;
+      if (empaque === "Caja kraft") extraEmpaque = precioKraft;
+      else if (empaque === "Caja plateada") extraEmpaque = precioPlateada;
     
-      const total = base * cantidad;
+      // Total = (precio unidad × cantidad) + precio empaque
+      const total = (precioUnidad * cantidad) + extraEmpaque;
     
-      document.getElementById("precioUnidad").textContent = "💰 Precio por unidad: " + base + " CUP";
+      document.getElementById("precioUnidad").textContent = "💰 Precio por unidad: " + precioUnidad + " CUP";
       document.getElementById("precioTotal").textContent = "💵 Precio total: " + total + " CUP";
     }
     
@@ -198,45 +202,52 @@
       }
     }
 
+
     function enviarWhatsapp() {
-      var producto = document.getElementById('producto').value.trim();
-      var aroma = aromaSelect.value.trim();
-      var color = document.getElementById('color').value.trim();
-      var cantidad = document.getElementById('cantidad').value.trim();
-      var nombre = document.getElementById('nombre').value.trim();
-      var empaque = empaqueSelect.value.trim();
-
-      if (!color) {
-        alert("Selecciona un color.");
-        return;
+        var producto = document.getElementById('producto').value.trim();
+        var aroma = aromaSelect.value.trim();
+        var color = document.getElementById('color').value.trim();
+        var cantidad = parseInt(document.getElementById('cantidad').value.trim(), 10);
+        var nombre = document.getElementById('nombre').value.trim();
+        var empaque = empaqueSelect.value.trim();
+      
+        if (!color) {
+          alert("Selecciona un color.");
+          return;
+        }
+        if (!cantidad || cantidad < 1 || cantidad > 10) {
+          alert("Ingresa una cantidad válida.");
+          return;
+        }
+        if (!nombre) {
+          alert("Ingresa tu nombre.");
+          return;
+        }
+      
+        // Solo el precio de la vela (con o sin aroma)
+        var precioUnidad = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
+      
+        // Suma del empaque
+        var extraEmpaque = 0;
+        if (empaque === "Caja kraft") extraEmpaque = precioKraft;
+        else if (empaque === "Caja plateada") extraEmpaque = precioPlateada;
+      
+        // Total final
+        var precioTotal = (precioUnidad * cantidad) + extraEmpaque;
+      
+        var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
+          + "🕯️ Producto: " + producto + "\n"
+          + "🌸 Aroma: " + aroma + "\n"
+          + "🎨 Color: " + color + "\n"
+          + "🎁 Empaque: " + empaque + "\n"
+          + "🔢 Cantidad: " + cantidad + "\n"
+          + "👤 Nombre: " + nombre + "\n"
+          + "💰 Precio por unidad: " + precioUnidad + " CUP"
+          + "\n💵 Precio total: " + precioTotal + " CUP";
+      
+        var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
+        window.open(url, "_blank");
       }
-      if (!cantidad || cantidad < 1 || cantidad > 10) {
-        alert("Ingresa una cantidad válida.");
-        return;
-      }
-      if (!nombre) {
-        alert("Ingresa tu nombre.");
-        return;
-      }
-
-      var precioBase = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
-      if (empaque === "Caja kraft") precioBase += precioKraft;
-      else if (empaque === "Caja plateada") precioBase += precioPlateada;
-      var precioTotal = precioBase * parseInt(cantidad, 10);
-
-      var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
-        + "🕯️ Producto: " + producto + "\n"
-        + "🌸 Aroma: " + aroma + "\n"
-        + "🎨 Color: " + color + "\n"
-        + "🎁 Empaque: " + empaque + "\n"
-        + "🔢 Cantidad: " + cantidad + "\n"
-        + "👤 Nombre: " + nombre + "\n"
-        + "💰 Precio por unidad: " + precioBase + " CUP";
-        mensaje += "\n💵 Precio total: " + precioTotal + " CUP";
-
-      var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
-      window.open(url, "_blank");
-    }
 
     window.onload = actualizarPrecio;
   </script>
