@@ -142,8 +142,9 @@
       <label>Tu nombre:</label>
       <input type="text" id="nombre" />
 
-      <div id="precio">Precio: 1,500 CUP</div>
-
+      <div id="precioUnidad">Precio por unidad: 1,500 CUP</div>
+      <div id="precioTotal">Precio total: 1,500 CUP</div>
+      
       <button type="button" class="submit-button" onclick="enviarWhatsapp()">Enviar por WhatsApp</button>
     </form>
   </div>
@@ -171,14 +172,19 @@
     function actualizarPrecio() {
       const aroma = aromaSelect.value;
       const empaque = empaqueSelect.value;
+      const cantidad = parseInt(document.getElementById('cantidad').value || 1, 10);
+    
       let base = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
-
+    
       if (empaque === "Caja kraft") base += precioKraft;
       else if (empaque === "Caja plateada") base += precioPlateada;
-
-      precioDiv.textContent = "Precio: " + base + " CUP";
+    
+      const total = base * cantidad;
+    
+      document.getElementById("precioUnidad").textContent = "💰 Precio por unidad: " + base + " CUP";
+      document.getElementById("precioTotal").textContent = "💵 Precio total: " + total + " CUP";
     }
-
+    
     function cambiarCantidad(delta) {
       var input = document.getElementById('cantidad');
       var value = parseInt(input.value || 1, 10);
@@ -188,6 +194,7 @@
       var nuevoValor = value + delta;
       if (nuevoValor >= min && nuevoValor <= max) {
         input.value = nuevoValor;
+        actualizarPrecio();
       }
     }
 
