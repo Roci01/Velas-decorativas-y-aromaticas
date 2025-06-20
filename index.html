@@ -222,6 +222,7 @@
       var precioBase = aroma === "Sin aroma" ? precioSinAroma : precioConAroma;
       if (empaque === "Caja kraft") precioBase += precioKraft;
       else if (empaque === "Caja plateada") precioBase += precioPlateada;
+      var precioTotal = precioBase * parseInt(cantidad, 10);
 
       var mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
         + "🕯️ Producto: " + producto + "\n"
@@ -231,6 +232,7 @@
         + "🔢 Cantidad: " + cantidad + "\n"
         + "👤 Nombre: " + nombre + "\n"
         + "💰 Precio por unidad: " + precioBase + " CUP";
+        mensaje += "\n💵 Precio total: " + precioTotal + " CUP";
 
       var url = "https://wa.me/5353810462?text=" + encodeURIComponent(mensaje);
       window.open(url, "_blank");
